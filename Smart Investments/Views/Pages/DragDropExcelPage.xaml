@@ -1,0 +1,73 @@
+﻿<Page x:Class="Smart_Investments.Views.Pages.DragDropExcelPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Smart_Investments.Views.Pages"
+      xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
+      mc:Ignorable="d" 
+      Title="DragDropExcelPage"
+      d:Background="White"
+      d:DesignHeight="500" d:DesignWidth="1250"
+      AllowDrop="True"
+      Background="{DynamicResource PrimaryBackgroundColor}">
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+
+        <Button Grid.Row="0" VerticalAlignment="Center"
+                HorizontalAlignment="Left"
+                Tag="{DynamicResource back}"
+                Margin="30,0,0,0"
+                DataContext="{Binding BackPageService, Source={StaticResource VMLocator}}"
+                Command="{Binding BagPagesStackBack_Click}">
+
+            <Button.Style>
+                <Style TargetType="Button" BasedOn="{StaticResource BackButtonStyle}">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding BackButtonBagPagesVisibility}" Value="0">
+                            <Setter Property="Visibility" Value="Hidden"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+                
+        </Button>
+
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" 
+                Command="{Binding Button_Click}"
+                Content="{Binding Message}"
+                dd:DragDrop.IsDropTarget="True"
+                dd:DragDrop.DropHandler ="{Binding}"
+                Tag="{DynamicResource fileHidden}"
+                Style="{DynamicResource ButtonDragDropStyle}"
+                DataContext="{Binding DragDropDepositsAndDebits, Source={StaticResource VMLocator}}"/>
+
+            <Button Grid.Column="1"
+                Command="{Binding Button_Click}"
+                Content="{Binding Message}"
+                dd:DragDrop.IsDropTarget="True"
+                dd:DragDrop.DropHandler ="{Binding}"
+                Tag="{DynamicResource fileHidden}"
+                Style="{DynamicResource ButtonDragDropStyle}"
+                DataContext="{Binding DragDropSdelki, Source={StaticResource VMLocator}}"/>
+
+            <!--dd:DragDrop.IsDropTarget="True"
+             dd:DragDrop.DropHandler="{Binding}"-->
+
+        </Grid>
+    </Grid>
+</Page>

@@ -1,0 +1,203 @@
+﻿<Page x:Class="Smart_Investments.Views.Pages.MarketPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+      xmlns:l="clr-namespace:Smart_Investments"
+      xmlns:converter="clr-namespace:Smart_Investments.Views.Converters" 
+      xmlns:vm="clr-namespace:Smart_Investments.ViewsModels"
+      xmlns:rules="clr-namespace:Smart_Investments.Views.ValidationRules"
+      mc:Ignorable="d" 
+      d:Background="White"
+      d:DesignHeight="500" d:DesignWidth="1250"
+      Title="MarketPage"
+      Background="{DynamicResource PrimaryBackgroundColor}"
+      DataContext="{Binding MarketPageViewModel, Source={StaticResource VMLocator}}">
+
+    <DockPanel>
+
+        <DockPanel Height="40"  DockPanel.Dock="Bottom">
+
+            <TextBlock
+                           Text="{Binding Condition}"
+                           FontSize="12"
+                           Foreground="{DynamicResource TextSecundaryBrush}"
+                           VerticalAlignment="Center"
+                           Margin="20,0,0,0"/>
+
+            <TextBlock
+                           Text="{Binding StocksView.Count, StringFormat=Количество акций: {0}}"
+                           FontSize="12"
+                           Foreground="{DynamicResource TextSecundaryBrush}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,20,0"
+                           HorizontalAlignment="Right"/>
+        </DockPanel>
+
+        <Grid x:Name="PageWidth">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Margin="0,40,0,0" VerticalAlignment="Top" Orientation="Horizontal">
+
+
+                <Border x:Name="BorderFilter" Width="0" Height="400"
+                    Background="{DynamicResource BackPanelBrush}" CornerRadius="0,5,5,0"
+                    BorderThickness="0,2,2,2" BorderBrush="{DynamicResource PrimaryGrayBrush}">
+
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Width="200">
+                        <StackPanel>
+                            <TextBlock Text="Акции:" Style="{DynamicResource TitleFilterStyle}"/>
+                            <ItemsControl ItemsSource="{Binding BoardsType}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <VirtualizingStackPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding BoardName}" IsChecked="{Binding IsActive}" Style="{DynamicResource CheckBoxFilterStyle}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <!--<DockPanel Margin="0,10">
+                            <Button Content="Очистить все" Style="{DynamicResource MiniButtonStyle}" HorizontalAlignment="Left"/>
+                            <Button Content="Выбрать все" Style="{DynamicResource MiniButtonStyle}" HorizontalAlignment="Right"/>
+                        </DockPanel>-->
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="Стоимость лота" Style="{DynamicResource TitleFilterStyle}"/>
+                            <StackPanel>
+                                <TextBlock Foreground="{DynamicResource FallingCostBrush}" Text="{Binding  ElementName=MinCostLotTextBox, Converter={converter:ConverterErrorValidation}, Path=(Validation.Errors)}" 
+                                       Width="200"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBox x:Name="MinCostLotTextBox" Background="{DynamicResource PrimaryBackgroundBrush}"  Width="110"  Foreground="{DynamicResource TextPrimaryBrush}"
+                                             Style="{DynamicResource TextBoxFilterStyle}" Tag="Мин." HorizontalAlignment="Left" Margin="0,5">
+                                        <TextBox.Text>
+                                            <Binding Path="MinCostLot" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
+                                                <Binding.ValidationRules>
+                                                    <rules:MinMaxIntRule/>
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                    <TextBlock Text="руб." Foreground="{DynamicResource TextSecundaryBrush}" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                </StackPanel>
+                                <TextBlock Foreground="{DynamicResource FallingCostBrush}" Text="{Binding  ElementName=MaxCostLotTextBox, Converter={converter:ConverterErrorValidation}, Path=(Validation.Errors)}" 
+                                       Width="200"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBox x:Name="MaxCostLotTextBox" Background="{DynamicResource PrimaryBackgroundBrush}"  Width="110"  Foreground="{DynamicResource TextPrimaryBrush}"
+                                             Style="{DynamicResource TextBoxFilterStyle}" Tag="Макс." HorizontalAlignment="Left" Margin="0,5">
+                                        <TextBox.Text>
+                                            <Binding Path="MaxCostLot" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
+                                                <Binding.ValidationRules>
+                                                    <rules:MinMaxIntRule/>
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                    <TextBlock Text="руб." Foreground="{DynamicResource TextSecundaryBrush}" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                        <Button Content="Применить" Style="{DynamicResource FilterButtonStyle}"
+                            Margin="0,30,0,0" Command="{Binding FilterAccept_Click}"/>
+                    </StackPanel>
+
+                </Border>
+
+                <ToggleButton x:Name="btnFilter" Tag="{DynamicResource chevronRight}" Style="{StaticResource MarketToogleButtonStyle}">
+
+                    <ToggleButton.Triggers>
+                        <EventTrigger RoutedEvent="ToggleButton.Unchecked">
+                            <BeginStoryboard>
+                                <Storyboard x:Name="HideStackPanel">
+
+                                    <DoubleAnimation Storyboard.TargetName="BorderFilter" Storyboard.TargetProperty="Width" BeginTime="0:0:0" From="280" To="0" Duration="0:0:0.3"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="ToggleButton.Checked">
+                            <BeginStoryboard>
+                                <Storyboard x:Name="ShowStackPanel">
+                                    <DoubleAnimation Storyboard.TargetName="BorderFilter" Storyboard.TargetProperty="Width" BeginTime="0:0:0" From="0" To="280" Duration="0:0:0.3"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ToggleButton.Triggers>
+                </ToggleButton>
+
+            </StackPanel>
+
+            <DockPanel  Grid.Column="1">
+
+                <Grid Height="30" DockPanel.Dock="Top">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="45"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="45"/>
+                    </Grid.ColumnDefinitions>
+
+
+
+                    <Grid Grid.Column="1">
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Left"
+                                    Margin="70,0,0,0">
+                                <RadioButton GroupName="Sort" ToolTip="По алфавиту" IsChecked="True" Command="{Binding SortDefault_Click}" Tag="{DynamicResource default}" Style="{DynamicResource MarketRadioButtonHorizontalStyle}"/>
+                                <RadioButton GroupName="Sort" ToolTip="По росту" Command="{Binding SortFalling_Click}" Tag="{DynamicResource falling}" Style="{DynamicResource MarketRadioButtonHorizontalStyle}"/>
+                                <RadioButton GroupName="Sort" ToolTip="По спаду" Command="{Binding SortGrowing_Click}" Tag="{DynamicResource growing}" Style="{DynamicResource MarketRadioButtonHorizontalStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+
+
+                    <Grid Grid.Column="2">
+                        <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Right">
+                            <TextBox Style="{StaticResource SearchTextBoxStyle}" Text="{Binding SearchStock, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </Grid>
+
+                </Grid>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <vwp:VirtualizingItemsControl 
+                                   Margin="0,0,10,0"
+                                   Grid.Column="1"
+                                   VirtualizingPanel.CacheLengthUnit="Item" 
+                                   VirtualizingPanel.ScrollUnit="Item" 
+                                   VirtualizingPanel.VirtualizationMode="Recycling"
+                                   ItemsSource="{Binding StocksView}"
+                                   Style="{StaticResource ItemsControlMarketPageStyle}">
+
+
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <vwp:VirtualizingWrapPanel Orientation="Vertical" SpacingMode="StartAndEndOnly" StretchItems="True"></vwp:VirtualizingWrapPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </vwp:VirtualizingItemsControl>
+
+                </Grid>
+
+            </DockPanel>
+
+        </Grid>
+
+    </DockPanel>
+    
+</Page>

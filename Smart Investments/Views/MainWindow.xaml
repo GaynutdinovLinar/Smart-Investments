@@ -1,0 +1,156 @@
+﻿<Window x:Class="Smart_Investments.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:l="clr-namespace:Smart_Investments"
+        xmlns:vm="clr-namespace:Smart_Investments.ViewsModels"
+        xmlns:cmd="clr-namespace:Smart_Investments.Services.Commands"
+        mc:Ignorable="d" Name="home"
+        Title="Smart Investments"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center" 
+        Height="750" Width="1270"
+        MinHeight="350" MinWidth="450"
+        ResizeMode="CanResize"  WindowState="Maximized" 
+        DataContext="{Binding MainViewModel, Source={StaticResource VMLocator}}">
+
+    <Window.Style>
+        <Style>
+            <Setter Property="WindowChrome.WindowChrome">
+                <Setter.Value>
+                    <WindowChrome  
+                        GlassFrameThickness="10"
+                        ResizeBorderThickness="5"
+                        CaptionHeight="32"/>    
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Style>
+
+    <Grid>
+        <Border Background="{DynamicResource PrimaryBackgroundBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <!-- Start: GridColum Left-->
+                <Border CornerRadius="8 0 0 8" Background="{DynamicResource SecundaryBackgroundBrush}">
+
+
+
+                    <Grid x:Name="gridMenu" Width="60">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="60"/>
+                            <RowDefinition Height="100"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="1" VerticalAlignment="Top">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <Path Grid.Column="0" Data="{DynamicResource profile}" Margin="16 0 0 0"  Fill="{DynamicResource PrimaryBlueBrush}" Width="25" Height="25" 
+                              Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
+                            <Grid  Grid.Column="1"  HorizontalAlignment="Left" Margin="16,0,0,0" VerticalAlignment="Center">
+                                <ToggleButton Content="{Binding SelectedUser.UserId}" Tag="{Binding Users}"
+                                     Style="{DynamicResource ToggleButtonStyle}"/>
+
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Users.Count}" Value="0">
+                                                <Setter Property="Visibility" Value="Hidden"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+
+
+                            </Grid>
+
+                        </Grid>
+
+                        <!-- Menu -->
+                        <ToggleButton WindowChrome.IsHitTestVisibleInChrome="True" x:Name="btnMenu"  HorizontalAlignment="Right" BorderThickness="0" Background="Transparent" VerticalAlignment="Center" Style="{StaticResource MenuIconStyle}" Margin="0 0 15 0">
+                            <ToggleButton.Triggers>
+                                <EventTrigger RoutedEvent="ToggleButton.Unchecked">
+                                    <BeginStoryboard>
+                                        <Storyboard x:Name="HideStackPanel">
+                                            <DoubleAnimation Storyboard.TargetName="gridMenu" Storyboard.TargetProperty="Width" BeginTime="0:0:0" From="200" To="60" Duration="0:0:0.3">
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="ToggleButton.Checked">
+                                    <BeginStoryboard>
+                                        <Storyboard x:Name="ShowStackPanel">
+                                            <DoubleAnimation Storyboard.TargetName="gridMenu" Storyboard.TargetProperty="Width" BeginTime="0:0:0" From="60" To="200" Duration="0:0:0.3">
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </ToggleButton.Triggers>
+                        </ToggleButton>
+
+
+                        <StackPanel Grid.Row="3">
+                            <RadioButton x:Name="rdHome" Content="Мой портфель" Command="{Binding Bag_Click}" Style="{DynamicResource MenuRadioButtonStyle}" Tag="{DynamicResource bag}"/>
+                            <RadioButton x:Name="rdSounds" Content="Рынок" Command="{Binding Market_Click}" Style="{DynamicResource MenuRadioButtonStyle}" Tag="{DynamicResource market}" Margin="0 5 0 5"/>
+                        </StackPanel>
+
+                        <Grid Grid.Row="4" VerticalAlignment="Bottom" Margin="0,0,0,20">
+                            <ToggleButton Style="{StaticResource CheckBoxSwitchStyle}" Content="Тема" 
+                                  IsChecked="{Binding IsLigthTheme, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+                <!-- End: GridColum Left-->
+
+                <!-- Start: GridColumn Rigth -->
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="491*"/>
+                        <RowDefinition Height="199*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Start: Button Close | Restore | Minimize -->
+                    <StackPanel Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,10,0" Height="30" Orientation="Horizontal" FlowDirection="RightToLeft"
+                            WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Button x:Name="btnClose" Style="{StaticResource IconButtonsStyle}" Content="{DynamicResource close}" Tag="IsCloseButton">
+                            <Button.Command>
+                                <cmd:CloseApplicationCommand/>
+                            </Button.Command>
+                        </Button>
+                        <Button x:Name="btnRestore" Margin="5,0" Click="btnRestore_Click">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}" BasedOn="{StaticResource IconButtonsStyle}">
+                                    <Setter Property="Content" Value="{DynamicResource maximize}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ElementName=home, Path=WindowState}" Value="Maximized">
+                                            <Setter Property="Content" Value="{DynamicResource restore}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button x:Name="btnMinimize" Style="{DynamicResource IconButtonsStyle}" Content="{DynamicResource minimize}" Click="btnMinimize_Click"/>
+                    </StackPanel>
+                    <!-- End: Button Close | Restore | Minimize -->
+
+                    <Border Grid.Row="1" Grid.RowSpan="2">
+                        <Frame x:Name="PagesNavigation" NavigationUIVisibility="Hidden" Content="{Binding CurrentPage}"/>
+                    </Border>
+                </Grid>
+                <!-- Start: GridColumn Rigth -->
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

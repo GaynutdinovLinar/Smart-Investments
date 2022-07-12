@@ -1,0 +1,193 @@
+﻿<Page x:Class="Smart_Investments.Views.Pages.BagPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Smart_Investments.Views.Pages"
+      xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+      xmlns:converter="clr-namespace:Smart_Investments.Views.Converters"
+      
+      mc:Ignorable="d" 
+      Title="BagPage"
+      d:Background="White"
+      d:DesignHeight="1500" d:DesignWidth="1250"
+      AllowDrop="True"
+       Background="{DynamicResource PrimaryBackgroundColor}"
+      DataContext="{Binding BagPageViewModel, Source={StaticResource VMLocator}}">
+
+    <Grid Background="{DynamicResource PrimaryBackgroundBrush}">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+
+        <Grid Margin="20,0" Grid.Row="0">
+            <Border CornerRadius="10" VerticalAlignment="Center" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal">
+
+                    <RadioButton Command="{Binding RadioButtonToday_Click}" Style="{DynamicResource PeriodRadioButtonStyle}" IsChecked="True" Content="Сегодня"/>
+
+                    <RadioButton Command="{Binding RadioButtonAll_Click}"  Style="{DynamicResource PeriodRadioButtonStyle}" IsChecked="False"  Content="Все время"/>
+
+                </StackPanel>
+            </Border>
+
+            <Button Command="{Binding DragDropPageOpen_Click}"
+                    Style="{DynamicResource UpdateBagButtonStyle}"
+                    Tag="{DynamicResource addBag}"
+                    Content="Загрузить портфель"
+                    HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" Margin="20" VerticalScrollBarVisibility="Auto" Style="{DynamicResource CustomScrollViewer}">
+
+            <WrapPanel Orientation="Horizontal">
+
+                <Border Margin="10" Height="180" CornerRadius="10">
+                    <StackPanel Orientation="Vertical" Margin="15">
+                        <TextBlock Text="Текущая стоимость:" Foreground="{DynamicResource SecundaryBackgroundBrushConst}"
+                                   FontSize="16" Margin="0,0,0,10"/>
+                        <TextBlock Text="{Binding SelectedUser.CurrentStocksCost, Converter={converter:ConvertTextLastCost}}" Foreground="{DynamicResource SecundaryBackgroundBrushConst}"
+                                   FontWeight="DemiBold" FontSize="20" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Изменение стоимости:" Foreground="{DynamicResource SecundaryBackgroundBrushConst}"
+                                   FontSize="16" Margin="0,0,0,10"/>
+
+                        <TextBlock x:Name="ChangeCostMain" Foreground="{DynamicResource SecundaryBackgroundBrushConst}" FontWeight="DemiBold" FontSize="20" 
+                                   HorizontalAlignment="Center" Margin="0,0,0,10">
+
+                            <TextBlock.Text>
+                                <MultiBinding Converter="{converter:ConvertTextChangeCostBagPage}">
+                                    <Binding Path="SelectedUser"/>
+                                    <Binding Path="Period"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+
+                        </TextBlock>
+
+                    </StackPanel>
+
+                    <Border.Background>
+                        <LinearGradientBrush EndPoint="0.9,0.9" StartPoint="0.5,0">
+                            <GradientStop Offset="2">
+
+                                <GradientStop.Color>
+                                    <MultiBinding Converter="{converter:ConvertColorChangeCostMain ColorGrowing={DynamicResource GrowingCostColor}, 
+                                        ColorFalling={DynamicResource FallingCostColor},ColorConst={DynamicResource PrimaryBlueColor}}">
+                                        <Binding Path="SelectedUser"/>
+                                        <Binding Path="Period"/>
+                                    </MultiBinding>
+                                </GradientStop.Color>
+
+                            </GradientStop>
+
+                            <GradientStop Color="{DynamicResource PrimaryBlueColor}"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+
+
+                </Border>
+
+                <Border Margin="10"  Height="180" CornerRadius="10" Background="{DynamicResource SecundaryBlueBrush}">
+                    <StackPanel Margin="15">
+                        <TextBlock Text="Общая информация:" FontWeight="DemiBold"
+                               FontSize="16" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,10"/>
+                        <WrapPanel Orientation="Vertical">
+                            <TextBlock Text="{Binding SelectedUser.InvestedAmount, Converter={converter:ConvertTextLastCost}, StringFormat=Инвестированно: {0}}" Style="{DynamicResource TextBlockInfoContentStyle}"/>
+                            <TextBlock Text="{Binding SelectedUser.DividendsAmount, Converter={converter:ConvertTextLastCost}, StringFormat=Сумма дивидендов: {0}}" Style="{DynamicResource TextBlockInfoContentStyle}"/>
+                            <TextBlock Text="{Binding SelectedUser.Commision, Converter={converter:ConvertTextLastCost}, StringFormat=Сумма комиссий: {0}}" Style="{DynamicResource TextBlockInfoContentStyle}" />
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Orientation="Vertical" Margin="0, 20">
+                    <TextBlock Text="Мои акции" FontSize="20" Margin="20,0,0,20" Foreground="{DynamicResource TextPrimaryBrush}"/>
+
+                    <ItemsControl
+                                   VirtualizingPanel.CacheLengthUnit="Item" 
+                                   VirtualizingPanel.ScrollUnit="Item" 
+                                   VirtualizingPanel.VirtualizationMode="Recycling"
+                                   ItemsSource="{Binding StocksView}"
+                                   Style="{StaticResource ItemsControlBagPageStyle}">
+
+
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <vwp:VirtualizingWrapPanel Orientation="Vertical" SpacingMode="StartAndEndOnly" StretchItems="True"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical" Margin="0, 20">
+                    <TextBlock Text="Дивиденды:" FontSize="20" Margin="20,0,0,20" Foreground="{DynamicResource TextPrimaryBrush}"/>
+
+                    <DockPanel Margin="10,0,0,0">
+                        <Border DockPanel.Dock="Top" Background="{DynamicResource SecundaryBlueBrush}" CornerRadius="5">
+                            <Grid>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="120"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock  Grid.Column="0" Grid.Row="0" Text="Компания" Margin="10,5" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource TextPrimaryBrush}"
+                                        FontWeight="SemiBold" FontSize="13"/>
+
+                                <TextBlock  Grid.Column="1" Grid.Row="0" Text="Стоимость" Margin="10,5" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}"
+                                        FontWeight="SemiBold" FontSize="13"/>
+
+                                <TextBlock Grid.Column="2" Grid.Row="0" Text="Количество акций" Margin="10,5" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}"
+                                        FontWeight="SemiBold" FontSize="13"/>
+
+                                <TextBlock Grid.Column="3" Grid.Row="0" Text="Дата" Margin="10,5" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource TextPrimaryBrush}"
+                                        FontWeight="SemiBold" FontSize="13"/>
+
+                            </Grid>
+                        </Border>
+
+                        <Border Background="Transparent" CornerRadius="0,0,5,5" BorderThickness="1,0,1,1" BorderBrush="{DynamicResource TextSecundaryBrush}">
+                            <ScrollViewer Style="{DynamicResource CustomMiniScrollViewer}" Height="200">
+                                <ItemsControl Grid.Row="1" ItemsSource="{Binding SelectedUser.Dividends}" FontSize="14" Foreground="{DynamicResource TextSecundaryBrush}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="120"/>
+                                                    <ColumnDefinition Width="100"/>
+                                                    <ColumnDefinition Width="140"/>
+                                                    <ColumnDefinition Width="120"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Border Padding="10" Grid.Column="0" BorderBrush="{DynamicResource TextSecundaryBrush}" BorderThickness="0,0,1,0" HorizontalAlignment="Stretch">
+                                                    <TextBlock Margin="5,0,0,0" Text="{Binding Shortname}"/>
+                                                </Border>
+                                                <Border Padding="10" Grid.Column="1"  BorderBrush="{DynamicResource TextSecundaryBrush}" 
+                                            BorderThickness="0,0,1,0" HorizontalAlignment="Stretch">
+                                                    <TextBlock  HorizontalAlignment="Center"   Text="{Binding Amount}"/>
+                                                </Border>
+                                                <Border Padding="10" HorizontalAlignment="Stretch" Grid.Column="2"  BorderBrush="{DynamicResource TextSecundaryBrush}" BorderThickness="0,0,1,0">
+                                                    <TextBlock HorizontalAlignment="Center"  Text="{Binding Count}"/>
+                                                </Border>
+                                                <TextBlock Margin="10" Grid.Column="3"  Text="{Binding Date, StringFormat=dd MMM yyy, ConverterCulture=Ru}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Border>
+                    </DockPanel>
+
+                </StackPanel>
+
+
+            </WrapPanel>
+
+        </ScrollViewer>
+
+    </Grid>
+</Page>

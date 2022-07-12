@@ -1,0 +1,514 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+                    xmlns:converter="clr-namespace:Smart_Investments.Views.Converters" 
+                    xmlns:cmd="clr-namespace:Smart_Investments.Services.Commands">
+
+    <cmd:ClearTextBoxCommand x:Key="ClearTextBoxCommand"/>
+
+    <!--CustomScrollViewer-->
+    <Style x:Key="CustomScrollViewer" TargetType="{x:Type ScrollViewer}">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <ScrollContentPresenter Grid.Column="0" Grid.Row="0" />
+                        <ScrollBar Name="PART_VerticalScrollBar"
+                                   Grid.Column="1"
+                                   Style="{DynamicResource VerticalScrollBar}"
+                                   Maximum="{TemplateBinding ScrollableHeight}"
+                                   Orientation="Vertical"
+                                   Value="{TemplateBinding VerticalOffset}"
+                                   ViewportSize="{TemplateBinding ViewportHeight}"
+                                   Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" />
+                        <ScrollBar Name="PART_HorizontalScrollBar"
+                                   Grid.Row="1"
+                                   Grid.Column="0"
+                                   Style="{DynamicResource VerticalScrollBar}"
+                                   Maximum="{TemplateBinding ScrollableWidth}"
+                                   Orientation="Horizontal"
+                                   Value="{TemplateBinding HorizontalOffset}"
+                                   ViewportSize="{TemplateBinding ViewportWidth}"
+                                   Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
+
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ScrollBarPageButtonStyle" TargetType="{x:Type RepeatButton}">
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Border BorderBrush="Transparent"></Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ScrollBarThumbStyle" TargetType="{x:Type Thumb}">
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Border x:Name="Icon" Background="{DynamicResource PrimaryGrayBrush}" CornerRadius="5" Width="7"/>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Icon" Property="Background" Value="{DynamicResource PrimaryBlueBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+    <Style x:Key="VerticalScrollBar"  TargetType="ScrollBar">
+        <Setter Property="Width" Value="7"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ScrollBar}">
+                    <Border Background="{DynamicResource SecundaryGrayBrush}" CornerRadius="5" Width="7">
+                        <Track Name="PART_Track"
+                   IsDirectionReversed="True">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource ScrollBarPageButtonStyle}"/>
+                            </Track.DecreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource ScrollBarThumbStyle}"/>
+                            </Track.Thumb>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource ScrollBarPageButtonStyle}">
+                                </RepeatButton>
+                            </Track.IncreaseRepeatButton>
+                        </Track>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--ButtonDeleteStyle-->
+    <Style x:Key="ButtonDeleteStyle" TargetType="{x:Type Button}">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid Background="Transparent" Height="20" Width="20" HorizontalAlignment="Right" Margin="0,0,0,0" Cursor="Hand">
+                        <Path x:Name="Icon" Data="{DynamicResource close}" Height="7" Width="7" Stretch="Uniform" VerticalAlignment="Center" Fill="{TemplateBinding Foreground}" Opacity="0.4"/>
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Icon" Property="Opacity" Value="0.8"/>
+                        </Trigger>
+
+                        <DataTrigger Binding="{Binding Text, ElementName=FilterBox}" Value="">
+                            <Setter Property="Visibility" Value="Hidden"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                    
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--FilterButtonStyle-->
+    <Style x:Key="FilterButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryBackgroundBrush}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border x:Name="Border"  Background="{DynamicResource PrimaryBlueBrush}" Width="170" Height="30" >
+                        <TextBlock Text="{Binding Content, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"/>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <EventTrigger RoutedEvent="MouseEnter">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Border" Storyboard.TargetProperty="Width" BeginTime="0:0:0" From="170" To="180" Duration="0:0:0.3"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="MouseLeave">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Border" Storyboard.TargetProperty="Width" BeginTime="0:0:0" From="180" To="170" Duration="0:0:0.3"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--TextBoxFilterStyle-->
+    <Style x:Key="TextBoxFilterStyle" TargetType="{x:Type TextBox}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TextBox}">
+
+                    <Border Name="Border"
+                            BorderThickness="0.5"
+                            BorderBrush="{TemplateBinding Foreground}"
+                        CornerRadius="2"  
+                            Height="25"
+                            Background="{TemplateBinding Background}"
+                            Width="{TemplateBinding Width}">
+
+                        <Grid>
+                            <TextBox 
+                                     Text="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"
+                                     Width="{Binding Width, ElementName=Border}" 
+                                     BorderThickness="0"
+                                     Margin="10,0,0,0"
+                                     HorizontalAlignment="Left"
+                                     VerticalContentAlignment="Center"
+                                     Background="Transparent"
+                                     Foreground="{TemplateBinding Foreground}"
+                                     FontSize="13"
+                                     x:Name="FilterBox"/>
+
+                            <TextBlock
+                                HorizontalAlignment="Left"
+                                IsHitTestVisible="False"
+                                Text="{Binding Tag, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}" 
+                                VerticalAlignment="Center"
+                                Margin="10,0,0,0"
+                                FontSize="13"
+                                Foreground="{TemplateBinding Foreground}">
+
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=FilterBox}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </Style>
+                                </TextBlock.Style>
+
+                            </TextBlock>
+
+                            <Button Style="{DynamicResource ButtonDeleteStyle}" Foreground="{TemplateBinding Foreground}" CommandParameter="{Binding ElementName=FilterBox}" Command="{StaticResource ResourceKey=ClearTextBoxCommand}"/>
+
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--MiniButtonStyleStyle-->
+    <Style x:Key="MiniButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border x:Name="Border" Background="Transparent" BorderThickness="0,0,0,2" BorderBrush="{DynamicResource TextPrimaryBrush}">
+                        <TextBlock Text="{Binding Content, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"/>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource PrimaryBlueBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--CheckBoxFilterStyleStyle-->
+    <Style x:Key="CheckBoxFilterStyle" TargetType="{x:Type CheckBox}">
+        <Setter Property="Foreground" Value="{DynamicResource TextSecundaryBrush}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Margin" Value="0,5"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type CheckBox}">
+                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                        <Border Height="14" Width="14" BorderThickness="1" CornerRadius="2" BorderBrush="{DynamicResource TextSecundaryBrush}" Background="{DynamicResource PrimaryBackgroundBrush}">
+                            <Path x:Name="Icon" Data="{DynamicResource check}"  Height="10" Width="10" Stretch="Uniform"  Fill="{DynamicResource PrimaryBlueBrush}" 
+                              VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Hidden"/>
+                        </Border>
+                        <TextBlock Text="{Binding Content, RelativeSource={RelativeSource AncestorType={x:Type CheckBox}}}"
+                                   Margin="10,0,0,0"/>
+                    </StackPanel>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Icon" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--TitleFilterStyleStyle-->
+    <Style x:Key="TitleFilterStyle" TargetType="{x:Type TextBlock}">
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="Margin" Value="0,10"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+    </Style>
+
+    <!--MarketRadioButtonVerticalStyle-->
+    <Style x:Key="MarketToogleButtonStyle" TargetType="{x:Type ToggleButton}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryGrayBrush}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Margin" Value="0,15,0,0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToggleButton}">
+                    <Border x:Name="Border" Background="{DynamicResource PrimaryGrayBrush}" BorderBrush="{DynamicResource PrimaryGrayBrush}"
+                            
+                            CornerRadius="0,5,5,0">
+
+                        <Path x:Name="Icon" Data="{Binding Tag, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}"  Height="10" Width="10" Stretch="Uniform"  Fill="{DynamicResource PrimaryBackgroundBrush}" 
+                              VerticalAlignment="Center" HorizontalAlignment="Center" >
+                            <Path.RenderTransform>
+                                <RotateTransform x:Name="IconRotate" Angle="0" CenterX="2.5" CenterY="5"/>
+                            </Path.RenderTransform>
+
+                        </Path>
+
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource PrimaryBlueBrush}"/>
+                        </Trigger>
+                        <EventTrigger RoutedEvent="ToggleButton.Checked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="IconRotate" Storyboard.TargetProperty="Angle" BeginTime="0:0:0" From="0" To="-180" Duration="0:0:0.3"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="ToggleButton.Unchecked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="IconRotate" Storyboard.TargetProperty="Angle" BeginTime="0:0:0" From="-180" To="0" Duration="0:0:0.3"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+    <!--MarketRadioButtonHorizontalStyle-->
+    <Style x:Key="MarketRadioButtonHorizontalStyle" TargetType="{x:Type RadioButton}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryGrayBrush}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="Margin" Value="15,0,15,0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RadioButton}">
+                    <Border x:Name="Border" Background="{TemplateBinding Background}" BorderThickness="2,2,2,2" BorderBrush="{DynamicResource PrimaryGrayBrush}"
+                            
+                            CornerRadius="5,5,5,5">
+
+                        <Path x:Name="Icon" Data="{Binding Tag, RelativeSource={RelativeSource AncestorType={x:Type RadioButton}}}"  Height="20" Width="20" Stretch="Uniform"  Fill="{DynamicResource PrimaryGrayBrush}" 
+                              VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                  
+                    </Border>
+                    
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Icon" Property="Fill" Value="{DynamicResource PrimaryBlueBrush}"/>
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource PrimaryBlueBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Icon" Property="Fill" Value="{DynamicResource PrimaryBlueBrush}"/>
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource PrimaryBlueBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+
+    <!--SearchTextBoxStyle-->
+    <Style x:Key="SearchTextBoxStyle" TargetType="TextBox">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border CornerRadius="10"
+                            Width="200"
+                            Height="30"
+                            Background="{DynamicResource BackPanelBrush}">
+                        <Grid>
+                            <Rectangle StrokeThickness="1"/>
+                            <TextBox Text="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}"
+                                     Margin="1"
+                                     BorderThickness="0"
+                                     VerticalContentAlignment="Center"
+                                     Padding="5"
+                                     Background="Transparent"
+                                     Foreground="{DynamicResource TextPrimaryBrush}"
+                                     FontSize="14"
+                                     x:Name="SearchBox"/>
+                            
+                            <TextBlock
+                                IsHitTestVisible="False"
+                                Text="Поиск"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Left"
+                                Margin="10,0,0,0"
+                                FontSize="14"
+                                Foreground="{DynamicResource TextSecundaryBrush}"
+                                Grid.Column="1">
+
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </Style>
+                                </TextBlock.Style>
+                                
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--LastCostStyle-->
+    <Style x:Key="LastCostStyle" TargetType="TextBlock">
+        <Setter Property="Text" Value="{Binding Path=Stock.LastCost, Converter={converter:ConvertTextLastCost}}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Margin" Value="0,0,0,5"/>
+        <Setter Property="FontSize" Value="16"/>
+    </Style>
+
+
+    <!--ChangeCostStyle-->
+    <Style x:Key="ChangeCostStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{Binding Path=Stock.ProcentChangeCostDay,
+            Converter={converter:ConvertColorChangeCost BrushGrowing={DynamicResource GrowingCostBrush}, BrushFalling={DynamicResource FallingCostBrush}}}"/>
+        <Setter Property="Text">
+            <Setter.Value>
+                <MultiBinding Converter="{converter:ConvertTextChangeCost}">
+                    <Binding Path="Stock.LastCost"/>
+                    <Binding Path="Stock.ChangeCost"/>
+                </MultiBinding>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="FontSize" Value="14"/>
+    </Style>
+    
+    <!--ItemBorderStyle-->
+    <Style x:Key="ItemBorderStyle" TargetType="Border">
+        <Style.Setters>
+            <Setter Property="CornerRadius" Value="8,8,8,8"/>
+            <Setter Property="Background" Value="{DynamicResource BackPanelBrush}"/>
+        </Style.Setters>
+    </Style>
+
+    <!--ItemControlStyle-->
+    <Style x:Key="ItemsControlMarketPageStyle" TargetType="vwp:VirtualizingItemsControl">
+        <Setter Property="ItemTemplate" >
+            <Setter.Value>
+                <DataTemplate>
+                    <Grid Margin="10" Cursor="Hand">
+
+                        <Border x:Name="BorderBack" Style="{StaticResource ItemBorderStyle}"/>
+
+                        <Grid Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Width="140" Margin="5">
+                                <TextBlock Text="{Binding Stock.Shortname}"
+                                       Margin="0,0,0,5"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       FontSize="16"/>
+                                <TextBlock Text="{Binding Stock.Secid}"
+                                       Foreground="{DynamicResource TextSecundaryBrush}"
+                                       FontSize="14"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Width="140" Margin="5">
+                                <TextBlock Style="{StaticResource LastCostStyle}"/>
+                                <TextBlock Style="{StaticResource ChangeCostStyle}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid.InputBindings>
+                            <MouseBinding
+                                MouseAction="LeftClick"
+                                Command="{Binding Path=DataContext.Stock_Click, RelativeSource={RelativeSource AncestorType={x:Type vwp:VirtualizingItemsControl}}}"
+                                CommandParameter="{Binding}"/>
+                        </Grid.InputBindings>
+
+                    </Grid>
+
+                    <DataTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="BorderBack" Property="BitmapEffect">
+                                <Setter.Value>
+                                    <DropShadowBitmapEffect Opacity="0.3" Softness="0.3" Direction="330" Color="{DynamicResource TextSecundaryColor}"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </DataTemplate.Triggers>
+
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+</ResourceDictionary>
